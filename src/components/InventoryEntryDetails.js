@@ -7,6 +7,7 @@ function InventoryEntryDetail(props) {
   return (
     <React.Fragment>
       <h1>Inventory Entry Detail</h1>
+      <hr />
       <h3>
         <strong>Name: </strong>
         {entry.name}
