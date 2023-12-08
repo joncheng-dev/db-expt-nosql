@@ -1,15 +1,24 @@
 import React, { useState, useEffect } from "react";
 import InventoryList from "./InventoryList";
 import InventoryAddForm from "./InventoryAddForm";
-import InventoryEntry from "./InventoryEntry";
 
 function InventoryControl() {
-  let currentlyVisiblePage = null;
+  // manage state
+  const [addFormVisible, setAddFormVisibility] = useState(false);
+  const [mainInventoryList, setMainInventoryList] = useState([]);
+  // const [selectedEntry, setSelectedEntry] = useState(null);
 
+  // functions
+  const handleClick = () => {
+    setAddFormVisibility(!addFormVisible);
+  };
+
+  // conditional rendering
   return (
-    <React.Fragment>
-      <h3>Placeholder for Inventory here</h3>
-    </React.Fragment>
+    <main>
+      {addFormVisible ? <InventoryAddForm /> : <InventoryList list={mainInventoryList} />}
+      <button onClick={handleClick}>{addFormVisible ? "Back" : "Add New Entry"}</button>
+    </main>
   );
 }
 
