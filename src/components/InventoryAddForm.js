@@ -2,10 +2,10 @@ import React from "react";
 import PropTypes from "prop-types";
 import ReusableForm from "./ReusableForm";
 
-function InventoryAddForm() {
+function InventoryAddForm(props) {
   function handleNewEntryFormSubmission(event) {
     event.preventDefault();
-    props.onNewEntryCreation({
+    props.onFormSubmit({
       name: event.target.name.value,
       description: event.target.description.value,
       location: event.target.location.value,
@@ -13,13 +13,13 @@ function InventoryAddForm() {
   }
   return (
     <React.Fragment>
-      <ReusuableForm formSubmissionHandler={handleNewEntryFormSubmission} buttonText="Add Entry" />
+      <ReusableForm formSubmissionHandler={handleNewEntryFormSubmission} buttonText="Add Entry" />
     </React.Fragment>
   );
 }
 
 InventoryAddForm.propTypes = {
-  onNewEntryCreation: PropTypes.func,
+  onFormSubmit: PropTypes.func,
 };
 
 export default InventoryAddForm;
