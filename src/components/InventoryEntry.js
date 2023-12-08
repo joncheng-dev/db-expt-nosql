@@ -10,6 +10,7 @@ function InventoryEntry(props) {
           <strong>{props.location}</strong>
         </p>
         <p>{props.description}</p>
+        <p>Checked Out By: {props.checkedOutBy}</p>
       </div>
       <hr />
     </React.Fragment>

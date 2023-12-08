@@ -7,9 +7,22 @@ function InventoryEntryDetail(props) {
   return (
     <React.Fragment>
       <h1>Inventory Entry Detail</h1>
-      <h3>{entry.name}</h3>
-      <p>{entry.location}</p>
-      <p>{entry.description}</p>
+      <h3>
+        <strong>Name: </strong>
+        {entry.name}
+      </h3>
+      <p>
+        <strong>Location: </strong>
+        {entry.location}
+      </p>
+      <p>
+        <strong>Description: </strong>
+        {entry.description}
+      </p>
+      <p>
+        <strong>Checked Out By: </strong>
+        {entry.checkedOutBy}
+      </p>
       <button onClick={onClickingEdit}>Edit entry</button>
       <button onClick={() => onClickingDelete(entry.id)}>Delete Entry</button>
       <hr />

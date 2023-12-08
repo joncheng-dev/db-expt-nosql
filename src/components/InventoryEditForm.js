@@ -11,6 +11,7 @@ function InventoryEditForm(props) {
       name: event.target.name.value,
       description: event.target.description.value,
       location: event.target.location.value,
+      checkedOutBy: entry.checkedOutBy,
       id: entry.id,
     });
   }

@@ -25,6 +25,7 @@ function InventoryControl() {
             name: entry.data().name,
             location: entry.data().location,
             description: entry.data().description,
+            checkedOutBy: entry.data().checkedOutBy,
             id: entry.id,
           });
         });
