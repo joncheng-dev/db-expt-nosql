@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
 import InventoryList from "./InventoryList";
 import InventoryAddForm from "./InventoryAddForm";
+import InventoryEntryDetail from "./InventoryEntryDetails.js";
 import db from "./../firebase.js";
-import { collection, addDoc, doc, onSnapshot } from "firebase/firestore";
+import { collection, addDoc, doc, onSnapshot, deleteDoc } from "firebase/firestore";
 
 function InventoryControl() {
   // manage state
   const [addFormVisible, setAddFormVisibility] = useState(false);
   const [inventoryList, setInventoryList] = useState([]);
-  // const [selectedEntry, setSelectedEntry] = useState(null);
+  const [selectedEntry, setSelectedEntry] = useState(null);
   const [error, setError] = useState(null);
+  const [editing, setEditing] = useState(false);
 
   // populate inventory list using database
   useEffect(() => {
@@ -36,7 +38,17 @@ function InventoryControl() {
 
   // functions
   const handleClick = () => {
-    setAddFormVisibility(!addFormVisible);
+    if (selectedEntry != null) {
+      setAddFormVisibility(false);
+      setSelectedEntry(null);
+      setEditing(false);
+    } else {
+      setAddFormVisibility(!addFormVisible);
+    }
+  };
+
+  const handleEditClick = () => {
+    setEditing(true);
   };
 
   const handleAddingNewEntryToList = async (entry) => {
@@ -44,11 +56,34 @@ function InventoryControl() {
     setAddFormVisibility(false);
   };
 
+  const handleChangingSelectedEntry = (id) => {
+    const selection = inventoryList.filter((entry) => entry.id === id)[0];
+    setSelectedEntry(selection);
+  };
+
+  const handleDeletingEntry = async (id) => {
+    await deleteDoc(doc(db, "inventoryEntries", id));
+    setSelectedEntry(null);
+  };
+
   // conditional rendering
+  let currentlyVisibleState = null;
+  let buttonText = null;
+  if (selectedEntry != null) {
+    currentlyVisibleState = <InventoryEntryDetail entry={selectedEntry} onClickingEdit={handleEditClick} onClickingDelete={handleDeletingEntry} />;
+    buttonText = "Return to Inventory List";
+  } else if (addFormVisible) {
+    currentlyVisibleState = <InventoryAddForm onFormSubmit={handleAddingNewEntryToList} />;
+    buttonText = "Return to Inventory List";
+  } else {
+    currentlyVisibleState = <InventoryList list={inventoryList} onEntrySelection={handleChangingSelectedEntry} />;
+    buttonText = "Add Entry";
+  }
+
   return (
     <main>
-      {addFormVisible ? <InventoryAddForm onFormSubmit={handleAddingNewEntryToList} /> : <InventoryList list={inventoryList} />}
-      <button onClick={handleClick}>{addFormVisible ? "Back" : "Add New Entry"}</button>
+      {currentlyVisibleState}
+      <button onClick={handleClick}>{buttonText}</button>
     </main>
   );
 }

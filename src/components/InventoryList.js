@@ -6,8 +6,16 @@ function InventoryList(props) {
   return (
     <React.Fragment>
       <h1>Inventory List</h1>
+      <hr />
       {props.list.map((entry) => (
-        <InventoryEntry name={entry.name} location={entry.location} description={entry.description} id={entry.id} key={entry.id} />
+        <InventoryEntry
+          whenEntryClicked={props.onEntrySelection}
+          name={entry.name}
+          location={entry.location}
+          description={entry.description}
+          id={entry.id}
+          key={entry.id}
+        />
       ))}
     </React.Fragment>
   );
