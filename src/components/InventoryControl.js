@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import InventoryList from "./InventoryList";
 import InventoryAddForm from "./InventoryAddForm";
 import InventoryEntryDetail from "./InventoryEntryDetails.js";
+import InventoryEditForm from "./InventoryEditForm.js";
 import db from "./../firebase.js";
-import { collection, addDoc, doc, onSnapshot, deleteDoc } from "firebase/firestore";
+import { collection, addDoc, doc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
 
 function InventoryControl() {
   // manage state
@@ -61,6 +62,13 @@ function InventoryControl() {
     setSelectedEntry(selection);
   };
 
+  const handleEditingEntryInList = async (entry) => {
+    const entryRef = doc(db, "inventoryEntries", entry.id);
+    await updateDoc(entryRef, entry);
+    setEditing(false);
+    setSelectedEntry(null);
+  };
+
   const handleDeletingEntry = async (id) => {
     await deleteDoc(doc(db, "inventoryEntries", id));
     setSelectedEntry(null);
@@ -69,7 +77,10 @@ function InventoryControl() {
   // conditional rendering
   let currentlyVisibleState = null;
   let buttonText = null;
-  if (selectedEntry != null) {
+  if (editing) {
+    currentlyVisibleState = <InventoryEditForm entry={selectedEntry} onFormSubmit={handleEditingEntryInList} />;
+    buttonText = "Return to Inventory List";
+  } else if (selectedEntry != null) {
     currentlyVisibleState = <InventoryEntryDetail entry={selectedEntry} onClickingEdit={handleEditClick} onClickingDelete={handleDeletingEntry} />;
     buttonText = "Return to Inventory List";
   } else if (addFormVisible) {

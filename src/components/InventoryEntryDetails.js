@@ -10,7 +10,7 @@ function InventoryEntryDetail(props) {
       <h3>{entry.name}</h3>
       <p>{entry.location}</p>
       <p>{entry.description}</p>
-      <button onClick={onClickingEdit}>Update entry</button>
+      <button onClick={onClickingEdit}>Edit entry</button>
       <button onClick={() => onClickingDelete(entry.id)}>Delete Entry</button>
       <hr />
     </React.Fragment>
