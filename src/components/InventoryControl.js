@@ -3,7 +3,7 @@ import InventoryList from "./InventoryList";
 import InventoryAddForm from "./InventoryAddForm";
 import InventoryEntryDetail from "./InventoryEntryDetails.js";
 import InventoryEditForm from "./InventoryEditForm.js";
-import { db } from "./../firebase.js";
+import { db, auth } from "./../firebase.js";
 import { collection, addDoc, doc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
 
 function InventoryControl() {
@@ -13,6 +13,7 @@ function InventoryControl() {
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [error, setError] = useState(null);
   const [editing, setEditing] = useState(false);
+  const isAuthorized = auth.currentUser ? true : false;
 
   // populate inventory list using database
   useEffect(() => {

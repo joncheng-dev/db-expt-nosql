@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { auth } from "./../firebase";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 function SignIn() {
   // state variables with useState hooks
   const [createAccountSuccess, setCreateAccountSuccess] = useState(null);
   const [signInSuccess, setSignInSuccess] = useState(null);
+  const [signOutSuccess, setSignOutSuccess] = useState(null);
 
   // functions
   function doCreateAccount(event) {
@@ -36,6 +37,16 @@ function SignIn() {
       });
   }
 
+  function doSignOut() {
+    signOut(auth)
+      .then(() => {
+        setSignInSuccess("You've signed out.");
+      })
+      .catch((error) => {
+        setSignOutSuccess(`There was an error with sign-out: ${error.message}`);
+      });
+  }
+
   // conditional rendering
   return (
     <React.Fragment>
@@ -53,6 +64,10 @@ function SignIn() {
         <input type="password" name="signinPassword" placeholder="password" />
         <button type="submit">Sign In</button>
       </form>
+      <h1>Sign Out</h1>
+      {setSignOutSuccess}
+      <br />
+      <button onClick={doSignOut}>Sign Out</button>
     </React.Fragment>
   );
 }
