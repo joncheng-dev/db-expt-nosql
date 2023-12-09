@@ -22,10 +22,6 @@ function SignIn() {
           userEmail: email,
           userId: userCredential.user.uid,
         });
-        // db.collection("users").doc(userCredential.user.uid).set({
-        //   userEmail: email,
-        //   userId: userCredential.user.uid,
-        // });
       })
       .catch((error) => {
         // error with creating account

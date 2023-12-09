@@ -76,6 +76,14 @@ function InventoryControl() {
     setSelectedEntry(null);
   };
 
+  const handleCheckoutClick = async () => {
+    // WIP: save current user to selected item's checkout field.
+    // const entryRef = doc(db, "inventoryEntries", "checkedOutBy");
+    // await updateDoc(entryRef, {
+    //   checkedOutBy:
+    // });
+  };
+
   // conditional rendering
   let currentlyVisibleState = null;
   let buttonText = null;
