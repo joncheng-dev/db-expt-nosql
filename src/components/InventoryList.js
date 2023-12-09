@@ -13,6 +13,7 @@ function InventoryList(props) {
           name={entry.name}
           location={entry.location}
           description={entry.description}
+          available={entry.available}
           checkedOutBy={entry.checkedOutBy}
           id={entry.id}
           key={entry.id}

@@ -20,6 +20,7 @@ function InventoryEntryDetail(props) {
         <strong>Description: </strong>
         {entry.description}
       </p>
+      <p>Available: {entry.available ? "yes" : "no"}</p>
       <p>
         <strong>Checked Out By: </strong>
         {entry.checkedOutBy}

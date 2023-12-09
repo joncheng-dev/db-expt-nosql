@@ -13,6 +13,7 @@ function InventoryControl() {
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [error, setError] = useState(null);
   const [editing, setEditing] = useState(false);
+  // Use this to determine conditional rendering for logged in vs not.
   const isAuthorized = auth.currentUser ? true : false;
 
   // populate inventory list using database
@@ -27,6 +28,7 @@ function InventoryControl() {
             location: entry.data().location,
             description: entry.data().description,
             checkedOutBy: entry.data().checkedOutBy,
+            available: entry.data().available,
             id: entry.id,
           });
         });
@@ -77,7 +79,6 @@ function InventoryControl() {
   };
 
   const handleCheckoutClick = async () => {
-    // WIP: save current user to selected item's checkout field.
     const entryRef = doc(db, "inventoryEntries", selectedEntry.id);
     console.log(auth.currentUser);
     await updateDoc(entryRef, {

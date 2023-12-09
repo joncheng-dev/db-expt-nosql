@@ -10,6 +10,7 @@ function InventoryEntry(props) {
           <strong>{props.location}</strong>
         </p>
         <p>{props.description}</p>
+        <p>Available: {props.available ? "yes" : "no"}</p>
         <p>Checked Out By: {props.checkedOutBy}</p>
       </div>
       <hr />
@@ -21,6 +22,8 @@ InventoryEntry.propTypes = {
   name: PropTypes.string,
   location: PropTypes.string,
   description: PropTypes.string,
+  available: PropTypes.bool,
+  checkedOutBy: PropTypes.string,
   id: PropTypes.string,
   whenEntryClicked: PropTypes.func,
 };

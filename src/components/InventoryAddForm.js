@@ -9,6 +9,7 @@ function InventoryAddForm(props) {
       name: event.target.name.value,
       description: event.target.description.value,
       location: event.target.location.value,
+      available: true,
       checkedOutBy: null,
     });
   }
