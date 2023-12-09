@@ -78,10 +78,11 @@ function InventoryControl() {
 
   const handleCheckoutClick = async () => {
     // WIP: save current user to selected item's checkout field.
-    // const entryRef = doc(db, "inventoryEntries", "checkedOutBy");
-    // await updateDoc(entryRef, {
-    //   checkedOutBy:
-    // });
+    const entryRef = doc(db, "inventoryEntries", selectedEntry.id);
+    console.log(auth.currentUser);
+    await updateDoc(entryRef, {
+      checkedOutBy: auth.currentUser.email,
+    });
   };
 
   // conditional rendering
@@ -91,7 +92,14 @@ function InventoryControl() {
     currentlyVisibleState = <InventoryEditForm entry={selectedEntry} onFormSubmit={handleEditingEntryInList} />;
     buttonText = "Return to Inventory List";
   } else if (selectedEntry != null) {
-    currentlyVisibleState = <InventoryEntryDetail entry={selectedEntry} onClickingEdit={handleEditClick} onClickingDelete={handleDeletingEntry} />;
+    currentlyVisibleState = (
+      <InventoryEntryDetail
+        entry={selectedEntry}
+        onClickingCheckout={handleCheckoutClick}
+        onClickingEdit={handleEditClick}
+        onClickingDelete={handleDeletingEntry}
+      />
+    );
     buttonText = "Return to Inventory List";
   } else if (addFormVisible) {
     currentlyVisibleState = <InventoryAddForm onFormSubmit={handleAddingNewEntryToList} />;
