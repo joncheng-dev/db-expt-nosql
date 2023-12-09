@@ -24,6 +24,7 @@ function InventoryEntryDetail(props) {
         <strong>Checked Out By: </strong>
         {entry.checkedOutBy}
       </p>
+      <button>Check Out Item</button>
       <button onClick={onClickingEdit}>Edit entry</button>
       <button onClick={() => onClickingDelete(entry.id)}>Delete Entry</button>
       <hr />

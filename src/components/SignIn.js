@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { auth } from "./../firebase";
+import { auth, db } from "./../firebase";
+import { doc, setDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 function SignIn() {
@@ -14,9 +15,17 @@ function SignIn() {
     const email = event.target.email.value;
     const password = event.target.password.value;
     createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         // user successfully creates account
         setCreateAccountSuccess(`Account creation successful: ${userCredential.user.email}.`);
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+          userEmail: email,
+          userId: userCredential.user.uid,
+        });
+        // db.collection("users").doc(userCredential.user.uid).set({
+        //   userEmail: email,
+        //   userId: userCredential.user.uid,
+        // });
       })
       .catch((error) => {
         // error with creating account
@@ -31,6 +40,9 @@ function SignIn() {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         setSignInSuccess(`You've signed in as: ${userCredential.user.email}`);
+        console.log(`Signed in.`);
+        console.log(`Current user is: ${userCredential.user.email}`);
+        console.log(`Current user Id is: ${userCredential.user.uid}`);
       })
       .catch((error) => {
         setSignInSuccess(`There was an error with sign-in: ${error.message}`);
