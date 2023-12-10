@@ -4,7 +4,7 @@ import InventoryAddForm from "./InventoryAddForm";
 import InventoryEntryDetail from "./InventoryEntryDetails.js";
 import InventoryEditForm from "./InventoryEditForm.js";
 import { db, auth } from "./../firebase.js";
-import { collection, addDoc, doc, onSnapshot, deleteDoc, updateDoc } from "firebase/firestore";
+import { collection, addDoc, doc, onSnapshot, deleteDoc, updateDoc, runTransaction } from "firebase/firestore";
 
 function InventoryControl() {
   // manage state
@@ -79,12 +79,46 @@ function InventoryControl() {
   };
 
   const handleCheckoutClick = async () => {
-    const entryRef = doc(db, "inventoryEntries", selectedEntry.id);
-    console.log(auth.currentUser);
-    await updateDoc(entryRef, {
-      checkedOutBy: auth.currentUser.email,
-    });
+    try {
+      await runTransaction(db, async (transaction) => {
+        // read both the target item entry AND the current user
+        const entryRef = doc(db, "inventoryEntries", selectedEntry.id);
+        const userRef = doc(db, "users", auth.currentUser.uid);
+
+        // read the information in both docs
+        const entryDoc = await transaction.get(entryRef);
+        if (!entryDoc.exists()) {
+          throw "Document does not exist";
+        }
+        const userDoc = await transaction.get(userRef);
+        if (!userDoc.exists()) {
+          throw "User does not exist";
+        }
+
+        // if both user and item exist, complete the transaction
+        const updatedEntryDoc = !entryDoc.data().available;
+        const userCheckedOutItems = userDoc.data().itemsCheckedOut;
+        console.log(auth.currentUser);
+        console.log(`userCheckedOutItems: ${JSON.stringify(userCheckedOutItems)}`);
+        transaction.update(entryRef, { available: updatedEntryDoc, checkedOutBy: auth.currentUser.email });
+        transaction.update(userRef, { itemsCheckedOut: {} });
+        console.log(`userCheckedOutItems: ${JSON.stringify(auth.currentUser)}`);
+      });
+      console.log("Transaction successful.");
+    } catch (e) {
+      console.log("Transaction failed.", e);
+    }
   };
+
+  // await updateDoc(entryRef, {
+  //   checkedOutBy: auth.currentUser.email,
+  // });
+  // const userRef = doc(db, "users", auth.currentUser.id);
+  // await updateDoc(userRef, {
+  //   itemsCheckedOut: {
+  //     selectedEntry,
+  //   },
+  // });
 
   // conditional rendering
   let currentlyVisibleState = null;
@@ -119,3 +153,18 @@ function InventoryControl() {
 }
 
 export default InventoryControl;
+
+// const handleCheckoutClick = async () => {
+//   const entryRef = doc(db, "inventoryEntries", selectedEntry.id);
+//   await updateDoc(entryRef, {
+//     checkedOutBy: auth.currentUser.email,
+//   });
+//   console.log(`entryRef: ${entryRef}`);
+//   const userRef = doc(db, "users", auth.currentUser.id);
+//   await updateDoc(userRef, {
+//     itemsCheckedOut: {
+//       selectedEntry,
+//     },
+//   });
+//   console.log(`userRef: ${userRef}`);
+// };

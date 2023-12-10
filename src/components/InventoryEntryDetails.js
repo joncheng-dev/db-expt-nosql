@@ -26,7 +26,10 @@ function InventoryEntryDetail(props) {
         {entry.checkedOutBy}
       </p>
       <button onClick={onClickingCheckout}>Check Out Item</button>
+      <br />
+      <hr />
       <button onClick={onClickingEdit}>Edit entry</button>
+      <br />
       <button onClick={() => onClickingDelete(entry.id)}>Delete Entry</button>
       <hr />
     </React.Fragment>
@@ -35,6 +38,7 @@ function InventoryEntryDetail(props) {
 
 InventoryEntryDetail.propTypes = {
   entry: PropTypes.object,
+  onClickingCheckout: PropTypes.func,
   onClickingDelete: PropTypes.func,
   onClickingEdit: PropTypes.func,
 };
