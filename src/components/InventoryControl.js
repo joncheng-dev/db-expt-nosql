@@ -4,7 +4,7 @@ import InventoryAddForm from "./InventoryAddForm";
 import InventoryEntryDetail from "./InventoryEntryDetails.js";
 import InventoryEditForm from "./InventoryEditForm.js";
 import { db, auth } from "./../firebase.js";
-import { collection, addDoc, doc, onSnapshot, deleteDoc, updateDoc, runTransaction } from "firebase/firestore";
+import { collection, addDoc, doc, onSnapshot, deleteDoc, updateDoc, runTransaction, arrayUnion, arrayRemove } from "firebase/firestore";
 
 function InventoryControl() {
   // manage state
@@ -101,7 +101,7 @@ function InventoryControl() {
         console.log(auth.currentUser);
         console.log(`userCheckedOutItems: ${JSON.stringify(userCheckedOutItems)}`);
         transaction.update(entryRef, { available: updatedEntryDoc, checkedOutBy: auth.currentUser.email });
-        transaction.update(userRef, { itemsCheckedOut: {} });
+        transaction.update(userRef, { itemsCheckedOut: arrayUnion(selectedEntry.id) });
         console.log(`userCheckedOutItems: ${JSON.stringify(auth.currentUser)}`);
       });
       console.log("Transaction successful.");
