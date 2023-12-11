@@ -16,7 +16,7 @@ function InventoryControl() {
   // Use this to determine conditional rendering for logged in vs not.
   const isAuthorized = auth.currentUser ? true : false;
 
-  // populate inventory list using database
+  //#region populate inventory list using database
   useEffect(() => {
     const unSubscribe = onSnapshot(
       collection(db, "inventoryEntries"),
@@ -40,8 +40,9 @@ function InventoryControl() {
     );
     return () => unSubscribe();
   }, []);
+  //#endregion populate inventory list using database
 
-  // functions
+  //#region functions
   const handleClick = () => {
     if (selectedEntry != null) {
       setAddFormVisibility(false);
@@ -88,21 +89,21 @@ function InventoryControl() {
         // read the information in both docs
         const entryDoc = await transaction.get(entryRef);
         if (!entryDoc.exists()) {
-          throw "Document does not exist";
+          throw "Item document does not exist";
         }
         const userDoc = await transaction.get(userRef);
         if (!userDoc.exists()) {
-          throw "User does not exist";
+          throw "User document does not exist";
         }
 
         // if both user and item exist, complete the transaction
         const updatedEntryDoc = !entryDoc.data().available;
-        const userCheckedOutItems = userDoc.data().itemsCheckedOut;
-        console.log(auth.currentUser);
-        console.log(`userCheckedOutItems: ${JSON.stringify(userCheckedOutItems)}`);
+        // const userCheckedOutItems = userDoc.data().itemsCheckedOut;
+        // console.log(auth.currentUser);
+        // console.log(`userCheckedOutItems: ${JSON.stringify(userCheckedOutItems)}`);
         transaction.update(entryRef, { available: updatedEntryDoc, checkedOutBy: auth.currentUser.email });
         transaction.update(userRef, { itemsCheckedOut: arrayUnion(selectedEntry.id) });
-        console.log(`userCheckedOutItems: ${JSON.stringify(auth.currentUser)}`);
+        // console.log(`userCheckedOutItems: ${JSON.stringify(auth.currentUser)}`);
       });
       console.log("Transaction successful.");
     } catch (e) {
@@ -110,15 +111,33 @@ function InventoryControl() {
     }
   };
 
-  // await updateDoc(entryRef, {
-  //   checkedOutBy: auth.currentUser.email,
-  // });
-  // const userRef = doc(db, "users", auth.currentUser.id);
-  // await updateDoc(userRef, {
-  //   itemsCheckedOut: {
-  //     selectedEntry,
-  //   },
-  // });
+  const handleReturnClick = async () => {
+    try {
+      await runTransaction(db, async (transaction) => {
+        const entryRef = doc(db, "inventoryEntries", selectedEntry.id);
+        const userRef = doc(db, "users", auth.currentUser.uid);
+
+        const entryDoc = await transaction.get(entryRef);
+        if (!entryDoc.exists()) {
+          throw "Item document does not exist";
+        }
+        const userDoc = await transaction.get(userRef);
+        if (!userDoc.exists()) {
+          throw "User document does not exist";
+        }
+
+        const updatedEntryDoc = entryDoc.data().available;
+        // const userCheckedOutItems = userDoc.data().itemsCheckedOut;
+        transaction.update(entryRef, { available: updatedEntryDoc, checkedOutBy: null });
+        transaction.update(userRef, { itemsCheckedOut: arrayRemove(selectedEntry.id) });
+      });
+      console.log("Transaction successful.");
+    } catch (e) {
+      console.log("Transaction failed.", e);
+    }
+  };
+
+  //#endregion functions
 
   // conditional rendering
   let currentlyVisibleState = null;
@@ -131,6 +150,7 @@ function InventoryControl() {
       <InventoryEntryDetail
         entry={selectedEntry}
         onClickingCheckout={handleCheckoutClick}
+        onClickingReturn={handleReturnClick}
         onClickingEdit={handleEditClick}
         onClickingDelete={handleDeletingEntry}
       />

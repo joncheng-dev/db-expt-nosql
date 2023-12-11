@@ -74,7 +74,7 @@ function SignIn() {
         <button type="submit">Sign In</button>
       </form>
       <h1>Sign Out</h1>
-      {setSignOutSuccess}
+      {signOutSuccess}
       <br />
       <button onClick={doSignOut}>Sign Out</button>
     </React.Fragment>

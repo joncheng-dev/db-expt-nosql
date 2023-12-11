@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 function InventoryEntryDetail(props) {
-  const { entry, onClickingDelete, onClickingEdit, onClickingCheckout } = props;
+  const { entry, onClickingDelete, onClickingEdit, onClickingCheckout, onClickingReturn } = props;
 
   return (
     <React.Fragment>
@@ -26,6 +26,7 @@ function InventoryEntryDetail(props) {
         {entry.checkedOutBy}
       </p>
       <button onClick={onClickingCheckout}>Check Out Item</button>
+      <button onClick={onClickingReturn}>Return Item</button>
       <br />
       <hr />
       <button onClick={onClickingEdit}>Edit entry</button>
@@ -39,6 +40,7 @@ function InventoryEntryDetail(props) {
 InventoryEntryDetail.propTypes = {
   entry: PropTypes.object,
   onClickingCheckout: PropTypes.func,
+  onClickingReturn: PropTypes.func,
   onClickingDelete: PropTypes.func,
   onClickingEdit: PropTypes.func,
 };
