@@ -80,13 +80,12 @@ function InventoryControl() {
     setSelectedEntry(null);
   };
 
-  const handleCheckoutClick = async (id) => {
+  const handleCheckoutAndReturn = async (id, task) => {
     try {
       await runTransaction(db, async (transaction) => {
         // read both the target item entry AND the current user
         const entryRef = doc(db, "inventoryEntries", selectedEntry.id);
         const userRef = doc(db, "users", auth.currentUser.uid);
-
         // read the information in both docs
         const entryDoc = await transaction.get(entryRef);
         if (!entryDoc.exists()) {
@@ -96,52 +95,37 @@ function InventoryControl() {
         if (!userDoc.exists()) {
           throw "User document does not exist";
         }
-
-        // if both user and item exist, complete the transaction
+        // if both user and item exist, continue with the transaction
         const availabilityStatus = !entryDoc.data().available;
         const userCheckedOutItems = userDoc.data().itemsCheckedOut || {};
-        userCheckedOutItems[id] = {
-          dateCheckedOut: new Date().toDateString(),
-        };
-        transaction.update(entryRef, {
-          available: availabilityStatus,
-          checkedOutBy: auth.currentUser.email,
-          dateCheckedOut: new Date().toDateString(),
-        });
-        transaction.update(userRef, {
-          itemsCheckedOut: userCheckedOutItems,
-        });
-      });
-      console.log("Transaction successful.");
-    } catch (e) {
-      console.log("Transaction failed.", e);
-    }
-  };
-
-  const handleReturnClick = async (id) => {
-    try {
-      await runTransaction(db, async (transaction) => {
-        const entryRef = doc(db, "inventoryEntries", selectedEntry.id);
-        const userRef = doc(db, "users", auth.currentUser.uid);
-
-        const entryDoc = await transaction.get(entryRef);
-        if (!entryDoc.exists()) {
-          throw "Item document does not exist";
-        }
-        const userDoc = await transaction.get(userRef);
-        if (!userDoc.exists()) {
-          throw "User document does not exist";
-        }
-
-        const availabilityStatus = !entryDoc.data().available;
-        const userCheckedOutItems = userDoc.data().itemsCheckedOut || {};
-
-        if (userCheckedOutItems[id]) {
-          delete userCheckedOutItems[id];
-          transaction.update(entryRef, { available: availabilityStatus, checkedOutBy: null, dateCheckedOut: null });
-          transaction.update(userRef, { itemsCheckedOut: userCheckedOutItems });
-        } else {
-          throw "Item is not checked out.";
+        // Decide which transaction to carry out
+        switch (task) {
+          case "check out":
+            // update the specific entry identified by "id" in this object first.
+            userCheckedOutItems[id] = {
+              dateCheckedOut: new Date().toDateString(),
+            };
+            // update both user and item docs
+            transaction.update(entryRef, {
+              available: availabilityStatus,
+              checkedOutBy: auth.currentUser.email,
+              dateCheckedOut: new Date().toDateString(),
+            });
+            transaction.update(userRef, {
+              itemsCheckedOut: userCheckedOutItems,
+            });
+            break;
+          case "return":
+            if (userCheckedOutItems[id]) {
+              delete userCheckedOutItems[id];
+              transaction.update(entryRef, { available: availabilityStatus, checkedOutBy: null, dateCheckedOut: null });
+              transaction.update(userRef, { itemsCheckedOut: userCheckedOutItems });
+            } else {
+              throw "Item is not checked out.";
+            }
+            break;
+          default:
+            break;
         }
       });
       console.log("Transaction successful.");
@@ -149,7 +133,6 @@ function InventoryControl() {
       console.log("Transaction failed.", e);
     }
   };
-
   //#endregion functions
 
   // conditional rendering
@@ -162,8 +145,7 @@ function InventoryControl() {
     currentlyVisibleState = (
       <InventoryEntryDetail
         entry={selectedEntry}
-        onClickingCheckout={handleCheckoutClick}
-        onClickingReturn={handleReturnClick}
+        onClickingCheckoutOrReturn={handleCheckoutAndReturn}
         onClickingEdit={handleEditClick}
         onClickingDelete={handleDeletingEntry}
       />
@@ -186,26 +168,3 @@ function InventoryControl() {
 }
 
 export default InventoryControl;
-
-// const handleCheckoutClick = async () => {
-//   const entryRef = doc(db, "inventoryEntries", selectedEntry.id);
-//   await updateDoc(entryRef, {
-//     checkedOutBy: auth.currentUser.email,
-//   });
-//   console.log(`entryRef: ${entryRef}`);
-//   const userRef = doc(db, "users", auth.currentUser.id);
-//   await updateDoc(userRef, {
-//     itemsCheckedOut: {
-//       selectedEntry,
-//     },
-//   });
-//   console.log(`userRef: ${userRef}`);
-// };
-
-// transaction.update(userRef, {
-//   itemsCheckedOut: {
-//     [id]: {
-//       dateCheckedOut: new Date().toDateString(),
-//     },
-//   },
-// });
