@@ -24,7 +24,7 @@ function InventoryEntryDetail(props) {
       <p>Checked Out By: {entry.checkedOutBy}</p>
       <p>Date Checked Out: {entry.dateCheckedOut}</p>
       <button onClick={() => onClickingCheckout(entry.id)}>Check Out Item</button>
-      <button onClick={onClickingReturn}>Return Item</button>
+      <button onClick={() => onClickingReturn(entry.id)}>Return Item</button>
       <br />
       <hr />
       <button onClick={onClickingEdit}>Edit entry</button>

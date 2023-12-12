@@ -98,18 +98,19 @@ function InventoryControl() {
         }
 
         // if both user and item exist, complete the transaction
-        const updatedEntryDoc = !entryDoc.data().available;
+        const availabilityStatus = !entryDoc.data().available;
         const userCheckedOutItems = userDoc.data().itemsCheckedOut || {};
-        // console.log(`userCheckedOutItems: ${JSON.stringify(userCheckedOutItems)}`);
         userCheckedOutItems[id] = {
           dateCheckedOut: new Date().toDateString(),
         };
-
-        transaction.update(entryRef, { available: updatedEntryDoc, checkedOutBy: auth.currentUser.email, dateCheckedOut: new Date().toDateString() });
+        transaction.update(entryRef, {
+          available: availabilityStatus,
+          checkedOutBy: auth.currentUser.email,
+          dateCheckedOut: new Date().toDateString(),
+        });
         transaction.update(userRef, {
           itemsCheckedOut: userCheckedOutItems,
         });
-        // console.log(`userCheckedOutItems: ${JSON.stringify(auth.currentUser)}`);
       });
       console.log("Transaction successful.");
     } catch (e) {
@@ -117,7 +118,7 @@ function InventoryControl() {
     }
   };
 
-  const handleReturnClick = async () => {
+  const handleReturnClick = async (id) => {
     try {
       await runTransaction(db, async (transaction) => {
         const entryRef = doc(db, "inventoryEntries", selectedEntry.id);
@@ -132,10 +133,16 @@ function InventoryControl() {
           throw "User document does not exist";
         }
 
-        const updatedEntryDoc = !entryDoc.data().available;
-        // const userCheckedOutItems = userDoc.data().itemsCheckedOut;
-        transaction.update(entryRef, { available: updatedEntryDoc, checkedOutBy: null, dateCheckedOut: null });
-        transaction.update(userRef, { itemsCheckedOut: arrayRemove(selectedEntry.id) });
+        const availabilityStatus = !entryDoc.data().available;
+        const userCheckedOutItems = userDoc.data().itemsCheckedOut || {};
+
+        if (userCheckedOutItems[id]) {
+          delete userCheckedOutItems[id];
+          transaction.update(entryRef, { available: availabilityStatus, checkedOutBy: null, dateCheckedOut: null });
+          transaction.update(userRef, { itemsCheckedOut: userCheckedOutItems });
+        } else {
+          throw "Item is not checked out.";
+        }
       });
       console.log("Transaction successful.");
     } catch (e) {
