@@ -28,6 +28,7 @@ function InventoryControl() {
             location: entry.data().location,
             description: entry.data().description,
             checkedOutBy: entry.data().checkedOutBy,
+            dateCheckedOut: entry.data().dateCheckedOut,
             available: entry.data().available,
             id: entry.id,
           });
@@ -79,7 +80,7 @@ function InventoryControl() {
     setSelectedEntry(null);
   };
 
-  const handleCheckoutClick = async () => {
+  const handleCheckoutClick = async (id) => {
     try {
       await runTransaction(db, async (transaction) => {
         // read both the target item entry AND the current user
@@ -98,11 +99,16 @@ function InventoryControl() {
 
         // if both user and item exist, complete the transaction
         const updatedEntryDoc = !entryDoc.data().available;
-        // const userCheckedOutItems = userDoc.data().itemsCheckedOut;
-        // console.log(auth.currentUser);
+        const userCheckedOutItems = userDoc.data().itemsCheckedOut || {};
         // console.log(`userCheckedOutItems: ${JSON.stringify(userCheckedOutItems)}`);
-        transaction.update(entryRef, { available: updatedEntryDoc, checkedOutBy: auth.currentUser.email });
-        transaction.update(userRef, { itemsCheckedOut: arrayUnion(selectedEntry.id) });
+        userCheckedOutItems[id] = {
+          dateCheckedOut: new Date().toDateString(),
+        };
+
+        transaction.update(entryRef, { available: updatedEntryDoc, checkedOutBy: auth.currentUser.email, dateCheckedOut: new Date().toDateString() });
+        transaction.update(userRef, {
+          itemsCheckedOut: userCheckedOutItems,
+        });
         // console.log(`userCheckedOutItems: ${JSON.stringify(auth.currentUser)}`);
       });
       console.log("Transaction successful.");
@@ -126,9 +132,9 @@ function InventoryControl() {
           throw "User document does not exist";
         }
 
-        const updatedEntryDoc = entryDoc.data().available;
+        const updatedEntryDoc = !entryDoc.data().available;
         // const userCheckedOutItems = userDoc.data().itemsCheckedOut;
-        transaction.update(entryRef, { available: updatedEntryDoc, checkedOutBy: null });
+        transaction.update(entryRef, { available: updatedEntryDoc, checkedOutBy: null, dateCheckedOut: null });
         transaction.update(userRef, { itemsCheckedOut: arrayRemove(selectedEntry.id) });
       });
       console.log("Transaction successful.");
@@ -188,3 +194,11 @@ export default InventoryControl;
 //   });
 //   console.log(`userRef: ${userRef}`);
 // };
+
+// transaction.update(userRef, {
+//   itemsCheckedOut: {
+//     [id]: {
+//       dateCheckedOut: new Date().toDateString(),
+//     },
+//   },
+// });

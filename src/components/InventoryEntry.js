@@ -12,6 +12,7 @@ function InventoryEntry(props) {
         <p>{props.description}</p>
         <p>Available: {props.available ? "yes" : "no"}</p>
         <p>Checked Out By: {props.checkedOutBy}</p>
+        <p>Date Checked Out: {props.dateCheckedOut}</p>
       </div>
       <hr />
     </React.Fragment>
@@ -24,6 +25,7 @@ InventoryEntry.propTypes = {
   description: PropTypes.string,
   available: PropTypes.bool,
   checkedOutBy: PropTypes.string,
+  dateCheckedOut: PropTypes.string,
   id: PropTypes.string,
   whenEntryClicked: PropTypes.func,
 };

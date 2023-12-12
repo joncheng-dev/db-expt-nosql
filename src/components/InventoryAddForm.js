@@ -11,6 +11,7 @@ function InventoryAddForm(props) {
       location: event.target.location.value,
       available: true,
       checkedOutBy: null,
+      dateCheckedOut: null,
     });
   }
   return (

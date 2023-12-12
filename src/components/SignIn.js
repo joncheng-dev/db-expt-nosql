@@ -21,7 +21,7 @@ function SignIn() {
         await setDoc(doc(db, "users", userCredential.user.uid), {
           userEmail: email,
           userId: userCredential.user.uid,
-          itemsCheckedOut: [],
+          itemsCheckedOut: {},
         });
       })
       .catch((error) => {
